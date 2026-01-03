@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sentinel 哨兵系统{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <a href="/" class="brand" style="text-decoration: none; display: block;">
+                <div class="brand-mark">
+                    <i class="ri-radar-line" style="color: var(--color-info); font-size: 24px;"></i>
+                    <span class="brand-name">Sentinel</span>
+                </div>
+                <div class="brand-sub">v1.1 · 哨兵系统</div>
+            </a>
+
+            <nav class="side-nav">
+                <a href="/" class="nav-item {% if request.url.path == '/' %}active{% endif %}">
+                    <i class="nav-ico ri-dashboard-3-line"></i>
+                    <span>仪表盘</span>
+                </a>
+                <a href="/news" class="nav-item {% if request.url.path.startswith('/news') %}active{% endif %}">
+                    <i class="nav-ico ri-flashlight-line"></i>
+                    <span>快讯列表</span>
+                </a>
+                <a href="/reports" class="nav-item {% if request.url.path.startswith('/reports') %}active{% endif %}">
+                    <i class="nav-ico ri-file-list-3-line"></i>
+                    <span>报表归档</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="status-pill">
+                    <span class="status-dot"></span>
+                    <span>服务运行中</span>
+                </div>
+                <div class="sidebar-hint">Dark Tech UI · 2025</div>
+            </div>
+        </aside>
+
+        <div class="app-main">
+            <header class="topbar">
+                <div class="topbar-left">
+                    <div class="topbar-title">Real News Monitor</div>
+                    <div class="topbar-sub">实时监控 · 快讯与预警</div>
+                </div>
+                <div class="topbar-right">
+                    <a class="topbar-chip topbar-chip--ghost" href="/news">浏览快讯</a>
+                    <a class="topbar-chip topbar-chip--ghost" href="/reports">查看报表</a>
+                </div>
+            </header>
+
+            <main class="content">
+                {% block content %}{% endblock %}
+            </main>
+
+            <footer class="footer">
+                <small>&copy; 2025 Sentinel System. All rights reserved.</small>
+            </footer>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/rangePlugin.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/zh.js"></script>
+</body>
+</html>
+
+

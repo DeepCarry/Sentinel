@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}报表归档 - Sentinel{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="ri-file-history-line" style="vertical-align: middle; margin-right: 10px;"></i> 历史报表归档</h1>
+    <p>查看所有生成的日报和周报</p>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>类型</th>
+            <th>统计周期</th>
+            <th>生成时间</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if reports %}
+            {% for report in reports %}
+            <tr>
+                <td><strong>#{{ report.id }}</strong></td>
+                <td>
+                    {% if report.type == 'daily' %}
+                        <span class="tag macro"><i class="ri-calendar-line"></i> 日报</span>
+                    {% else %}
+                        <span class="tag" style="background: rgba(0, 122, 255, 0.1); color: var(--color-accent);"><i class="ri-bar-chart-grouped-line"></i> 周报</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="period-badge">
+                        <span class="time">{{ report.period_start.strftime('%Y-%m-%d %H:%M') }}</span>
+                        <span class="separator">→</span>
+                        <span class="time">{{ report.period_end.strftime('%Y-%m-%d %H:%M') }}</span>
+                    </div>
+                </td>
+                <td>{{ report.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>
+                    <a href="/reports/{{ report.id }}" target="_blank" class="button button-secondary button-sm">
+                        查看 <i class="ri-external-link-line"></i>
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="5" class="empty-state">
+                    <div class="empty-icon"><i class="ri-inbox-line"></i></div>
+                    <p>暂无历史报表</p>
+                </td>
+            </tr>
+        {% endif %}
+    </tbody>
+</table>
+{% endblock %}
+
+

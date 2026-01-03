@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}{{ news.title }} - Sentinel{% endblock %}
+
+{% block content %}
+<a href="/news" class="back-link"><i class="ri-arrow-left-line"></i> 返回列表</a>
+
+<article class="news-detail">
+    <header>
+        <h1>{{ news.title }}</h1>
+        <div class="detail-meta">
+            <span><i class="ri-calendar-event-line"></i> 发布时间: {{ news.pub_time.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+            <span><i class="ri-newspaper-line"></i> 来源: {{ news.source|upper }}</span>
+            <span><i class="ri-download-cloud-2-line"></i> 抓取时间: {{ news.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+        </div>
+        <div style="margin-top: var(--spacing-md);">
+            {% if news.tags %}
+                {% for tag in news.tags.split(',') %}
+                    {% if tag.lower() == '宏观' %}
+                        <span class="tag macro">{{ tag }}</span>
+                    {% elif tag.lower() == '安全' %}
+                        <span class="tag security">{{ tag }}</span>
+                    {% else %}
+                        <span class="tag risk">{{ tag }}</span>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        </div>
+    </header>
+    
+    <div class="detail-content">
+        {{ news.content|replace('\n', '<br>')|safe }}
+    </div>
+    
+    <div style="margin-top: var(--spacing-xl); padding-top: var(--spacing-lg); border-top: 1px solid var(--color-border);">
+        <a href="{{ news.url }}" target="_blank" class="button button-secondary">原始链接 <i class="ri-external-link-line"></i></a>
+    </div>
+</article>
+
+<details>
+    <summary>调试信息</summary>
+    <pre>
+ID: {{ news.id }}
+Source ID: {{ news.source_id }}
+In Daily Report: {{ news.in_daily_report }}
+In Weekly Report: {{ news.in_weekly_report }}
+    </pre>
+</details>
+{% endblock %}
+
+

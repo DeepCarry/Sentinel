@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}仪表盘 - Sentinel{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="ri-user-smile-line" style="vertical-align: bottom; margin-right: 8px;"></i> 欢迎回来, Admin</h1>
+    <p>系统概况 | 最后更新: {{ last_update }}</p>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon"><i class="ri-bar-chart-box-line"></i></div>
+        <h3>今日抓取</h3>
+        <div class="stat-value">{{ today_count }}</div>
+        <div class="stat-label">条快讯</div>
+    </div>
+    <div class="stat-card danger">
+        <div class="stat-icon"><i class="ri-alarm-warning-line"></i></div>
+        <h3>今日匹配</h3>
+        <div class="stat-value">{{ today_risks }}</div>
+        <div class="stat-label">条情报</div>
+    </div>
+    <div class="stat-card {% if system_status %}success{% else %}danger{% endif %}">
+        <div class="stat-icon">
+            {% if system_status %}
+            <i class="ri-shield-check-line"></i>
+            {% else %}
+            <i class="ri-alarm-warning-line"></i>
+            {% endif %}
+        </div>
+        <h3>系统状态</h3>
+        <div class="stat-value" style="font-size: 2rem;">
+            {% if system_status %}
+            <i class="ri-checkbox-circle-fill"></i>
+            {% else %}
+            <i class="ri-close-circle-fill"></i>
+            {% endif %}
+        </div>
+        <div class="stat-label">
+            {% if system_status %}运行正常{% else %}服务已停止{% endif %}
+        </div>
+    </div>
+</div>
+
+<section>
+    <div class="page-header" style="margin-bottom: var(--spacing-lg);">
+        <h2 style="font-size: var(--font-size-2xl); margin-bottom: 0; display: flex; align-items: center; gap: 10px;">
+            <i class="ri-broadcast-line" style="color: var(--color-danger)"></i>
+            最新新闻快讯
+        </h2>
+        <p style="margin-top: var(--spacing-xs);">Top 10</p>
+    </div>
+    
+    {% if recent_risks %}
+        {% for news in recent_risks %}
+        <div class="news-card" onclick="window.location.href='/news/{{ news.id }}'">
+            <div class="news-meta">
+                <span class="time">{{ news.pub_time.strftime('%H:%M') }}</span>
+                <span>•</span>
+                <span class="source">{{ news.source }}</span>
+            </div>
+            <h3><a href="/news/{{ news.id }}">{{ news.title }}</a></h3>
+            <div class="news-content">{{ news.content[:150] }}...</div>
+            <div class="news-footer">
+                <div>
+                    {% if news.tags %}
+                        {% for tag in news.tags.split(',') %}
+                            <span class="tag risk">{{ tag }}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-icon"><i class="ri-inbox-line"></i></div>
+            <p>暂无匹配数据</p>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}
+
+

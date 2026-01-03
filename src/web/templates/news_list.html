@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}快讯列表 - Sentinel{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>快讯列表</h1>
+    <p>浏览所有抓取的快讯信息</p>
+</div>
+
+<form action="/news" method="get" class="filter-form">
+    <div class="form-group">
+        <label for="source">来源</label>
+        <select name="source" id="source">
+            <option value="">所有来源</option>
+            <option value="aicoin" {% if source == 'aicoin' %}selected{% endif %}>AICoin</option>
+            <option value="blockbeats" {% if source == 'blockbeats' %}selected{% endif %}>BlockBeats</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="tag">标签</label>
+        <input type="text" name="tag" id="tag" placeholder="输入标签 (如: 宏观)" value="{{ tag or '' }}">
+    </div>
+    <div class="form-group">
+        <label for="keyword">关键词</label>
+        <input type="text" name="keyword" id="keyword" placeholder="标题关键词" value="{{ keyword or '' }}">
+    </div>
+    <div class="form-group">
+        <label>时间范围</label>
+        <div class="date-range-group">
+            <input type="text" id="start_date" name="start_date" value="{{ start_date or '' }}" class="date-input" placeholder="开始日期" autocomplete="off">
+            <span class="separator">-</span>
+            <input type="text" id="end_date" name="end_date" value="{{ end_date or '' }}" class="date-input" placeholder="结束日期" autocomplete="off">
+        </div>
+    </div>
+    <div class="form-group">
+        <button type="submit" class="button">筛 选</button>
+    </div>
+    {% if source or tag or keyword or start_date or end_date %}
+        <div class="form-group">
+            <a href="/news" class="button button-secondary">重置</a>
+        </div>
+    {% endif %}
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const startDate = "{{ start_date or '' }}";
+    const endDate = "{{ end_date or '' }}";
+    
+    const config = {
+        mode: "range",
+        dateFormat: "Y-m-d",
+        locale: "zh",
+        plugins: [new rangePlugin({ input: "#end_date" })],
+        theme: "dark",
+        allowInput: true,
+        showMonths: 2
+    };
+    
+    if (startDate && endDate) {
+        config.defaultDate = [startDate, endDate];
+    }
+    
+    flatpickr("#start_date", config);
+});
+</script>
+
+<section>
+    {% if news_list %}
+        {% for news in news_list %}
+        <div class="news-card" onclick="window.location.href='/news/{{ news.id }}'">
+            <div class="news-meta">
+                <span class="time">{{ news.pub_time.strftime('%Y-%m-%d %H:%M') }}</span>
+                <span>•</span>
+                <span class="source">{{ news.source }}</span>
+                {% if news.is_pushed %}
+                    <span>•</span>
+                    <span style="color: var(--color-success);"><i class="ri-check-double-line"></i> 已推送</span>
+                {% endif %}
+            </div>
+            <h3><a href="/news/{{ news.id }}">{{ news.title }}</a></h3>
+            <div class="news-content">{{ news.content[:200] }}...</div>
+            <div class="news-footer">
+                <div>
+                    {% if news.tags %}
+                        {% for tag in news.tags.split(',') %}
+                            {% if tag.lower() == '宏观' %}
+                                <span class="tag macro">{{ tag }}</span>
+                            {% elif tag.lower() == '安全' %}
+                                <span class="tag security">{{ tag }}</span>
+                            {% else %}
+                                <span class="tag risk">{{ tag }}</span>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <span class="tag">普通</span>
+                    {% endif %}
+                </div>
+                <a href="{{ news.url }}" target="_blank" class="button button-secondary button-sm" onclick="event.stopPropagation();">
+                    原始链接 <i class="ri-external-link-line"></i>
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+        
+    <div class="pagination">
+        {% if page > 1 %}
+            <a href="/news?page={{ page - 1 }}&source={{ source or '' }}&tag={{ tag or '' }}&keyword={{ keyword or '' }}&start_date={{ start_date or '' }}&end_date={{ end_date or '' }}">
+                <i class="ri-arrow-left-s-line"></i> 上一页
+            </a>
+        {% endif %}
+        <span>第 {{ page }} 页</span>
+        {% if news_list|length == 20 %}
+            <a href="/news?page={{ page + 1 }}&source={{ source or '' }}&tag={{ tag or '' }}&keyword={{ keyword or '' }}&start_date={{ start_date or '' }}&end_date={{ end_date or '' }}">
+                下一页 <i class="ri-arrow-right-s-line"></i>
+            </a>
+        {% endif %}
+    </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-icon"><i class="ri-inbox-line"></i></div>
+            <p>未找到符合条件的快讯</p>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}
+
+
