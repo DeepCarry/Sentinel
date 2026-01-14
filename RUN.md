@@ -124,7 +124,7 @@ grep "关键词" logs/sentinel.log
 2. 检查虚拟环境是否正确：
 
    ```bash
-   source venv_3.13/bin/activate
+   source .venv/bin/activate
    python --version
    ```
 3. 检查依赖是否安装：

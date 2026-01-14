@@ -6,7 +6,7 @@ load_dotenv()
 
 # --- 基础配置 ---
 # 飞书 Webhook 地址 (优先从环境变量获取，否则使用默认值)
-FEISHU_WEBHOOK_URL = os.getenv("FEISHU_WEBHOOK_URL", "https://open.feishu.cn/open-apis/bot/v2/hook/3d42889b-4229-4a22-943f-2a1bcd49c651")
+FEISHU_WEBHOOK_URL = os.getenv("FEISHU_WEBHOOK_URL", "https://open.larksuite.com/open-apis/bot/v2/hook/834f69dc-41e0-466c-92ff-7f4285a59942")
 
 # 数据库路径 (存放在 data 目录下)
 DB_PATH = "data/sentinel.db"
@@ -41,7 +41,7 @@ ALL_KEYWORDS = KEYWORDS_SECURITY + KEYWORDS_COMPLIANCE + KEYWORDS_MACRO
 # 即使命中白名单，如果包含以下词汇，直接丢弃 (过滤噪音)
 IGNORE_WORDS = [
     "赞助", "广告", "推广", "空投", "抽奖", "赠送", "邀请", "返佣", 
-    "峰会预告", "早报", "晚报", "行情分析", "涨幅", "跌幅", "狂送"
+    "峰会预告", "早报", "晚报", "行情分析", "涨幅", "跌幅", "狂送", "直播"
 ]
 
 # --- 爬虫配置 ---
