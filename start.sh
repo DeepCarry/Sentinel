@@ -8,13 +8,13 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
 # 检查虚拟环境
-if [ ! -d "venv_3.13" ]; then
-    echo "错误: 未找到虚拟环境 venv_3.13"
+if [ ! -d ".venv" ]; then
+    echo "错误: 未找到虚拟环境 .venv"
     exit 1
 fi
 
 # 激活虚拟环境并启动
-source venv_3.13/bin/activate
+source .venv/bin/activate
 
 # 检查端口是否被占用（最常见的“启动多次/断点不命中”根因）
 if lsof -nP -iTCP:8000 -sTCP:LISTEN >/dev/null 2>&1; then
@@ -39,7 +39,7 @@ mkdir -p logs
 
 # 使用 nohup 在后台启动，输出重定向到日志文件
 echo "正在启动 Sentinel..."
-nohup venv_3.13/bin/python main_prod.py > logs/startup.log 2>&1 &
+nohup .venv/bin/python main_prod.py > logs/startup.log 2>&1 &
 
 # 获取进程ID
 PID=$!
@@ -56,6 +56,9 @@ echo "  ./stop.sh      - 停止服务"
 sleep 2
 if ps -p $PID > /dev/null; then
     echo "✓ 启动成功！"
+    echo ""
+    echo "🌍 Web 管理后台: http://localhost:8000"
+    echo ""
 else
     echo "✗ 启动失败，请查看 logs/startup.log 了解详情"
     exit 1
