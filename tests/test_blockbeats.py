@@ -1,9 +1,10 @@
 import asyncio
 import sys
-import os
+from pathlib import Path
 
-# 确保 src 目录在 python path 中
-sys.path.append(os.getcwd())
+# 将项目根目录添加到 Python 路径
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
 
 from src.scrapers.blockbeats import BlockBeatsScraper
 

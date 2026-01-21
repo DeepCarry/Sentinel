@@ -7,7 +7,9 @@
 #   ./logs.sh -n 100   - 查看最后100行
 #   ./logs.sh -e       - 只显示错误日志
 
-LOG_FILE="logs/sentinel.log"
+# 获取脚本所在目录的父目录（项目根目录）
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
+LOG_FILE="$SCRIPT_DIR/logs/sentinel.log"
 
 # 检查日志文件是否存在
 if [ ! -f "$LOG_FILE" ]; then

@@ -41,7 +41,7 @@ if [ ! -z "$LISTENERS" ]; then
         echo ""
         echo "  ⚠ 检测到多个进程同时监听 8000（$LISTENER_COUNT 个）。"
         echo "    这会导致 Postman/浏览器请求随机命中其中一个进程，出现“断点不命中”。"
-        echo "    建议先执行: ./stop.sh --yes"
+        echo "    建议先执行: ./scripts/stop.sh --yes"
     fi
 else
     echo "  ✗ 端口 8000 未监听"
@@ -52,7 +52,9 @@ echo ""
 
 # 3. 检查日志文件
 echo "📌 日志文件:"
-LOG_FILE="logs/sentinel.log"
+# 获取脚本所在目录的父目录（项目根目录）
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
+LOG_FILE="$SCRIPT_DIR/logs/sentinel.log"
 if [ -f "$LOG_FILE" ]; then
     LOG_SIZE=$(ls -lh "$LOG_FILE" | awk '{print $5}')
     LOG_LINES=$(wc -l < "$LOG_FILE" 2>/dev/null || echo "0")

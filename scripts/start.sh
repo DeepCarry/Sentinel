@@ -3,8 +3,8 @@
 # Sentinel 后台启动脚本
 # 使用方法: ./start.sh
 
-# 获取脚本所在目录
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# 获取脚本所在目录的父目录（项目根目录）
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 cd "$SCRIPT_DIR"
 
 # 检查虚拟环境
@@ -48,9 +48,9 @@ echo "日志文件: logs/sentinel.log"
 echo "启动日志: logs/startup.log"
 echo ""
 echo "使用以下命令查看状态:"
-echo "  ./status.sh    - 查看运行状态"
-echo "  ./logs.sh      - 查看实时日志"
-echo "  ./stop.sh      - 停止服务"
+echo "  ./scripts/status.sh    - 查看运行状态"
+echo "  ./scripts/logs.sh      - 查看实时日志"
+echo "  ./scripts/stop.sh      - 停止服务"
 
 # 等待一下，检查进程是否成功启动
 sleep 2

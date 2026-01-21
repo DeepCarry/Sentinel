@@ -1,5 +1,12 @@
 import datetime
+import sys
+from pathlib import Path
 from sqlmodel import Session, select
+
+# 将项目根目录添加到 Python 路径
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
 from src.database import engine, init_db
 from src.models import NewsFlash
 from src.report import run_daily_report, run_weekly_report
