@@ -87,8 +87,6 @@ body {
 .sidebar {
     width: var(--sidebar-width);
     background: var(--bg-sidebar);
-    backdrop-filter: var(--backdrop-blur);
-    -webkit-backdrop-filter: var(--backdrop-blur);
     border-right: var(--glass-border);
     display: flex;
     flex-direction: column;
@@ -126,7 +124,7 @@ body {
 .side-nav {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-xs);
+    gap: 2px; /* 一级菜单间距缩小一半 */
     flex: 1;
 }
 
@@ -156,6 +154,84 @@ body {
 .nav-ico {
     font-size: 18px;
     opacity: 0.8;
+}
+
+/* 分组导航：舆情监控 */
+.nav-group {
+    margin-top: 4px;
+    padding: 4px 0;
+}
+
+.nav-item-parent {
+    position: relative;
+    cursor: pointer;
+    padding-right: 40px;
+    border-radius: var(--radius-md);
+}
+
+.nav-item-parent .nav-arrow {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+    opacity: 0.7;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.nav-group-collapsed .nav-item-parent .nav-arrow {
+    transform: translateY(-50%) rotate(-90deg);
+    opacity: 0.5;
+}
+
+.nav-children {
+    margin-top: 4px;
+    padding-left: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-height: 400px;
+    overflow: hidden;
+    opacity: 1;
+    transition: max-height 0.25s ease, opacity 0.2s ease;
+}
+
+.nav-group-collapsed .nav-children {
+    max-height: 0;
+    opacity: 0;
+}
+
+.nav-item-child {
+    padding: 8px 16px;
+    font-size: 15px;
+    background: transparent;
+    border-radius: var(--radius-md);
+}
+
+.nav-item-child .nav-ico {
+    font-size: 16px;
+}
+
+.nav-item-child.active {
+    color: var(--text-main);
+    background: rgba(255, 255, 255, 0.04);
+    position: relative;
+}
+
+.nav-item-child.active::before {
+    content: "";
+    position: absolute;
+    left: 8px;
+    top: 6px;
+    bottom: 6px;
+    width: 2px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.45);
+}
+
+.nav-item-parent.active {
+    color: var(--text-main);
+    background: rgba(255, 255, 255, 0.04);
 }
 
 /* Sidebar Footer */
@@ -219,7 +295,6 @@ body {
     justify-content: space-between;
     padding: 0 var(--spacing-xl);
     border-bottom: var(--glass-border);
-    backdrop-filter: blur(10px);
     z-index: 50;
 }
 
@@ -298,44 +373,74 @@ body {
 .stat-card, .news-card {
     background: var(--bg-card);
     border: var(--glass-border);
-    border-radius: var(--radius-lg);
-    padding: 24px;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    border-radius: var(--radius-md);
+    padding: 18px;
+    transition: background 0.2s ease, transform 0.15s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .stat-card:hover, .news-card:hover {
     background: var(--bg-card-hover);
     transform: translateY(-2px);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
     border-color: rgba(255, 255, 255, 0.15);
 }
 
 /* Dashboard Stats Grid */
+.stats-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-lg);
+    margin-bottom: 24px;
+}
+
+.stats-section {
+    flex: 1 1 360px;
+    min-width: 0;
+}
+
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: var(--spacing-lg);
-    margin-bottom: 40px;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: 24px;
+}
+
+.stats-grid-compact .stat-card {
+    padding: 12px 14px;
+}
+
+.stats-grid-compact .stat-icon {
+    font-size: 18px;
+    margin-bottom: 8px;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+}
+
+.stats-grid-compact .stat-value {
+    font-size: 30px; /* 1.5x 放大 */
+}
+
+.stats-grid-compact .stat-label {
+    font-size: 12px;
 }
 
 .stat-icon {
-    font-size: 28px;
-    margin-bottom: 16px;
+    font-size: 24px;
+    margin-bottom: 12px;
     background: rgba(255, 255, 255, 0.05);
-    width: 48px;
-    height: 48px;
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 12px;
+    border-radius: 10px;
 }
 
 .stat-value {
-    font-size: 36px;
+    font-size: 42px; /* 1.5x 放大 */
     font-weight: 700;
-    margin: 8px 0;
+    margin: 4px 0 6px;
     letter-spacing: -1px;
 }
 
@@ -348,6 +453,25 @@ body {
 
 .stat-card.danger .stat-value { color: var(--color-danger); }
 .stat-card.success .stat-value { color: var(--color-success); }
+
+/* 累计统计卡片，使用更柔和的配色，弱化视觉权重 */
+.stat-card-muted {
+    background: linear-gradient(135deg, #1f222a 0%, #181a20 100%);
+    border-color: rgba(255, 255, 255, 0.06);
+}
+
+.stat-card-muted .stat-icon {
+    color: #9ca3af;
+    background: rgba(156, 163, 175, 0.08);
+}
+
+.stat-card-muted .stat-value {
+    color: #e5e7eb;
+}
+
+.stat-card-muted .stat-label {
+    color: #9ca3af;
+}
 
 /* News List */
 .news-card {
