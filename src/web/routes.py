@@ -5,7 +5,7 @@ from sqlalchemy import func, or_
 from datetime import datetime
 
 from src.database import engine
-from src.models import NewsFlash, Report, DailyStats
+from src.models import NewsFlash, Report, DailyStats, ScanRecord
 from src.config import NOTIFICATION_MODE
 from src.logger import setup_logger
 
@@ -45,6 +45,14 @@ async def dashboard(request: Request, session: Session = Depends(get_session)):
         .where(NewsFlash.created_at >= today_start)
         .where(NewsFlash.tags != "")
     ).one()
+
+    # 3. 获取累计抓取与匹配 (系统启动至今)
+    total_scanned_count = session.exec(
+        select(func.count(ScanRecord.id))
+    ).one()
+    total_matched_count = session.exec(
+        select(func.count(NewsFlash.id))
+    ).one()
     
     # 获取最新 10 条高危快讯 (有标签的)
     recent_risks = session.exec(
@@ -63,6 +71,8 @@ async def dashboard(request: Request, session: Session = Depends(get_session)):
         "request": request,
         "today_count": today_scanned_count,
         "today_risks": today_risks_count,
+        "total_scanned": total_scanned_count,
+        "total_matched": total_matched_count,
         "recent_risks": recent_risks,
         "last_update": now.strftime("%Y-%m-%d %H:%M:%S"),
         "system_status": system_status

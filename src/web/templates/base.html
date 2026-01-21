@@ -18,22 +18,39 @@
                     <i class="ri-radar-line" style="color: var(--color-info); font-size: 24px;"></i>
                     <span class="brand-name">Sentinel</span>
                 </div>
-                <div class="brand-sub">v1.1 · 哨兵系统</div>
+                <div class="brand-sub">v1.2 · 哨兵系统</div>
             </a>
 
             <nav class="side-nav">
+                <!-- 一级菜单：仪表盘 -->
                 <a href="/" class="nav-item {% if request.url.path == '/' %}active{% endif %}">
                     <i class="nav-ico ri-dashboard-3-line"></i>
                     <span>仪表盘</span>
                 </a>
-                <a href="/news" class="nav-item {% if request.url.path.startswith('/news') %}active{% endif %}">
-                    <i class="nav-ico ri-flashlight-line"></i>
-                    <span>快讯列表</span>
-                </a>
-                <a href="/reports" class="nav-item {% if request.url.path.startswith('/reports') %}active{% endif %}">
-                    <i class="nav-ico ri-file-list-3-line"></i>
-                    <span>报表归档</span>
-                </a>
+
+                <!-- 一级菜单：舆情监控（可展开） -->
+                <div class="nav-group">
+                    <div
+                        class="nav-item nav-item-parent {% if request.url.path.startswith('/news') or request.url.path.startswith('/reports') %}active{% endif %}"
+                        onclick="toggleNavGroup(this)"
+                    >
+                        <i class="nav-ico ri-eye-line"></i>
+                        <span>舆情监控</span>
+                        <i class="nav-arrow ri-arrow-down-s-line"></i>
+                    </div>
+
+                    <!-- 二级子菜单 -->
+                    <div class="nav-children">
+                        <a href="/news" class="nav-item nav-item-child {% if request.url.path.startswith('/news') %}active{% endif %}">
+                            <i class="nav-ico ri-flashlight-line"></i>
+                            <span>快讯列表</span>
+                        </a>
+                        <a href="/reports" class="nav-item nav-item-child {% if request.url.path.startswith('/reports') %}active{% endif %}">
+                            <i class="nav-ico ri-file-list-3-line"></i>
+                            <span>报表归档</span>
+                        </a>
+                    </div>
+                </div>
             </nav>
 
             <div class="sidebar-footer">
@@ -69,6 +86,45 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/rangePlugin.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/zh.js"></script>
+
+    <script>
+        // 简单能力检测，避免极旧浏览器报错
+        function supportsLocalStorage() {
+            try {
+                return typeof window !== "undefined" && "localStorage" in window && window.localStorage !== null;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        // 展开 / 折叠舆情监控分组（挂到 window 保证全局可见）
+        window.toggleNavGroup = function (element) {
+            if (!element) return;
+            var group = element.parentElement;
+            if (!group) return;
+            var collapsed = group.classList.toggle("nav-group-collapsed");
+            if (supportsLocalStorage()) {
+                try {
+                    window.localStorage.setItem("nav_monitoring_collapsed", collapsed ? "1" : "0");
+                } catch (e) {
+                    // ignore quota / privacy errors
+                }
+            }
+        };
+
+        // 页面加载时恢复展开状态
+        document.addEventListener("DOMContentLoaded", function () {
+            var group = document.querySelector(".nav-group");
+            if (!group) return;
+            var shouldCollapse =
+                supportsLocalStorage() &&
+                window.localStorage.getItem("nav_monitoring_collapsed") === "1";
+            // 默认展开；仅在本地存储为 1 时折叠
+            if (shouldCollapse) {
+                group.classList.add("nav-group-collapsed");
+            }
+        });
+    </script>
 </body>
 </html>
 

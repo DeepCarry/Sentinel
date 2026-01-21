@@ -8,37 +8,68 @@
     <p>系统概况 | 最后更新: {{ last_update }}</p>
 </div>
 
-<div class="stats-grid">
-    <div class="stat-card">
-        <div class="stat-icon"><i class="ri-bar-chart-box-line"></i></div>
-        <h3>今日抓取</h3>
-        <div class="stat-value">{{ today_count }}</div>
-        <div class="stat-label">条快讯</div>
-    </div>
-    <div class="stat-card danger">
-        <div class="stat-icon"><i class="ri-alarm-warning-line"></i></div>
-        <h3>今日匹配</h3>
-        <div class="stat-value">{{ today_risks }}</div>
-        <div class="stat-label">条情报</div>
-    </div>
-    <div class="stat-card {% if system_status %}success{% else %}danger{% endif %}">
-        <div class="stat-icon">
-            {% if system_status %}
-            <i class="ri-shield-check-line"></i>
-            {% else %}
-            <i class="ri-alarm-warning-line"></i>
-            {% endif %}
+<div class="stats-row">
+    <div class="stats-section">
+        <h2 style="font-size: 1.25rem; margin-bottom: 1rem; color: var(--text-muted); display: flex; align-items: center; gap: 8px;">
+            <i class="ri-calendar-line"></i>
+            <span>今日统计</span>
+        </h2>
+
+        <div class="stats-grid stats-grid-compact">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="ri-bar-chart-box-line"></i></div>
+                <h3>今日抓取</h3>
+                <div class="stat-value">{{ today_count }}</div>
+                <div class="stat-label">条快讯</div>
+            </div>
+            <div class="stat-card danger">
+                <div class="stat-icon"><i class="ri-alarm-warning-line"></i></div>
+                <h3>今日匹配</h3>
+                <div class="stat-value">{{ today_risks }}</div>
+                <div class="stat-label">条情报</div>
+            </div>
+            <div class="stat-card {% if system_status %}success{% else %}danger{% endif %}">
+                <div class="stat-icon">
+                    {% if system_status %}
+                    <i class="ri-shield-check-line"></i>
+                    {% else %}
+                    <i class="ri-alarm-warning-line"></i>
+                    {% endif %}
+                </div>
+                <h3>系统状态</h3>
+                <div class="stat-value" style="font-size: 2rem;">
+                    {% if system_status %}
+                    <i class="ri-checkbox-circle-fill"></i>
+                    {% else %}
+                    <i class="ri-close-circle-fill"></i>
+                    {% endif %}
+                </div>
+                <div class="stat-label">
+                    {% if system_status %}运行正常{% else %}服务已停止{% endif %}
+                </div>
+            </div>
         </div>
-        <h3>系统状态</h3>
-        <div class="stat-value" style="font-size: 2rem;">
-            {% if system_status %}
-            <i class="ri-checkbox-circle-fill"></i>
-            {% else %}
-            <i class="ri-close-circle-fill"></i>
-            {% endif %}
-        </div>
-        <div class="stat-label">
-            {% if system_status %}运行正常{% else %}服务已停止{% endif %}
+    </div>
+
+    <div class="stats-section">
+        <h2 style="font-size: 1.25rem; margin-bottom: 1rem; color: var(--text-muted); display: flex; align-items: center; gap: 8px;">
+            <i class="ri-database-2-line"></i>
+            <span>累计统计</span>
+        </h2>
+
+        <div class="stats-grid stats-grid-compact">
+            <div class="stat-card stat-card-muted">
+                <div class="stat-icon"><i class="ri-inbox-archive-line"></i></div>
+                <h3>总抓取数</h3>
+                <div class="stat-value">{{ total_scanned }}</div>
+                <div class="stat-label">条快讯（含噪音）</div>
+            </div>
+            <div class="stat-card stat-card-muted">
+                <div class="stat-icon"><i class="ri-shield-star-line"></i></div>
+                <h3>总匹配数</h3>
+                <div class="stat-value">{{ total_matched }}</div>
+                <div class="stat-label">条高价值情报</div>
+            </div>
         </div>
     </div>
 </div>
