@@ -1,15 +1,15 @@
 import os
 from dotenv import load_dotenv
 
-# 加载 .env 环境变量
 load_dotenv()
 
-# --- 基础配置 ---
-# 飞书 Webhook 地址 (优先从环境变量获取，否则使用默认值)
 FEISHU_WEBHOOK_URL = os.getenv("FEISHU_WEBHOOK_URL", "https://open.larksuite.com/open-apis/bot/v2/hook/834f69dc-41e0-466c-92ff-7f4285a59942")
 
-# 数据库路径 (存放在 data 目录下)
-DB_PATH = "data/sentinel.db"
+_BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if os.getenv("VERCEL"):
+    DB_PATH = "/tmp/sentinel.db"
+else:
+    DB_PATH = os.path.join(_BASE_DIR, "data", "sentinel.db")
 SQLITE_URL = f"sqlite:///{DB_PATH}"
 
 # 抓取源

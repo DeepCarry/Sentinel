@@ -1,3 +1,4 @@
+import os
 from fastapi import APIRouter, Request, Depends, Query
 from fastapi.templating import Jinja2Templates
 from sqlmodel import Session, select, desc
@@ -9,14 +10,12 @@ from src.models import NewsFlash, Report, DailyStats, ScanRecord
 from src.config import NOTIFICATION_MODE
 from src.logger import setup_logger
 
-# 路由日志
 logger = setup_logger("sentinel.web.routes")
 
-# 创建路由器
 router = APIRouter()
 
-# 配置模板引擎
-templates = Jinja2Templates(directory="src/web/templates")
+_WEB_DIR = os.path.dirname(os.path.abspath(__file__))
+templates = Jinja2Templates(directory=os.path.join(_WEB_DIR, "templates"))
 
 def get_session():
     with Session(engine) as session:
