@@ -10,10 +10,15 @@
 # 获取脚本所在目录的父目录（项目根目录）
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 LOG_FILE="$SCRIPT_DIR/logs/sentinel.log"
+LEGACY_LOG_FILE="$SCRIPT_DIR/logs/startup.log"
+
+if [ ! -f "$LOG_FILE" ] && [ -f "$LEGACY_LOG_FILE" ]; then
+    LOG_FILE="$LEGACY_LOG_FILE"
+fi
 
 # 检查日志文件是否存在
 if [ ! -f "$LOG_FILE" ]; then
-    echo "错误: 日志文件不存在: $LOG_FILE"
+    echo "错误: 日志文件不存在: $SCRIPT_DIR/logs/sentinel.log"
     exit 1
 fi
 

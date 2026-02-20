@@ -55,19 +55,24 @@ echo "📌 日志文件:"
 # 获取脚本所在目录的父目录（项目根目录）
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 LOG_FILE="$SCRIPT_DIR/logs/sentinel.log"
+LEGACY_LOG_FILE="$SCRIPT_DIR/logs/startup.log"
+if [ ! -f "$LOG_FILE" ] && [ -f "$LEGACY_LOG_FILE" ]; then
+    LOG_FILE="$LEGACY_LOG_FILE"
+fi
 if [ -f "$LOG_FILE" ]; then
     LOG_SIZE=$(ls -lh "$LOG_FILE" | awk '{print $5}')
     LOG_LINES=$(wc -l < "$LOG_FILE" 2>/dev/null || echo "0")
     LAST_LOG_TIME=$(stat -f "%Sm" -t "%Y-%m-%d %H:%M:%S" "$LOG_FILE" 2>/dev/null || stat -c "%y" "$LOG_FILE" 2>/dev/null | cut -d'.' -f1)
     
     echo "  ✓ 日志文件存在"
+    echo "    路径: $LOG_FILE"
     echo "    大小: $LOG_SIZE"
     echo "    行数: $LOG_LINES"
     echo "    最后修改: $LAST_LOG_TIME"
     
     # 检查最近的日志时间（判断是否在活跃写入）
     if [ "$PROCESS_RUNNING" = true ]; then
-        RECENT_LOG=$(tail -n 1 "$LOG_FILE" 2>/dev/null | grep -oP '\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}' | head -1)
+        RECENT_LOG=$(tail -n 1 "$LOG_FILE" 2>/dev/null | grep -Eo '[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}' | head -1)
         if [ ! -z "$RECENT_LOG" ]; then
             echo "    最新日志时间: $RECENT_LOG"
         fi

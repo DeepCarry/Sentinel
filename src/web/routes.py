@@ -1,5 +1,10 @@
 import os
+import re
+import asyncio
+from collections import deque
+from pathlib import Path
 from fastapi import APIRouter, Request, Depends, Query
+from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
 from sqlmodel import Session, select, desc
 from sqlalchemy import func, or_
@@ -16,10 +21,32 @@ router = APIRouter()
 
 _WEB_DIR = os.path.dirname(os.path.abspath(__file__))
 templates = Jinja2Templates(directory=os.path.join(_WEB_DIR, "templates"))
+_PROJECT_ROOT = Path(_WEB_DIR).resolve().parents[1]
+_LOG_FILE = _PROJECT_ROOT / "logs" / "sentinel.log"
+_LEGACY_LOG_FILE = _PROJECT_ROOT / "logs" / "startup.log"
+_ERROR_LOG_PATTERN = re.compile(r"\[(ERROR|WARNING|CRITICAL)\]")
 
 def get_session():
     with Session(engine) as session:
         yield session
+
+def _resolve_log_file() -> Path | None:
+    if _LOG_FILE.exists():
+        return _LOG_FILE
+    if _LEGACY_LOG_FILE.exists():
+        return _LEGACY_LOG_FILE
+    return None
+
+def _is_error_line(line: str) -> bool:
+    return bool(_ERROR_LOG_PATTERN.search(line))
+
+def _read_last_lines(log_file: Path, limit: int) -> list[str]:
+    with log_file.open("r", encoding="utf-8", errors="replace") as f:
+        return list(deque(f, maxlen=limit))
+
+def _to_sse(line: str) -> str:
+    chunks = line.rstrip("\n").splitlines() or [""]
+    return "".join(f"data: {chunk}\n" for chunk in chunks) + "\n"
 
 @router.get("/")
 async def dashboard(request: Request, session: Session = Depends(get_session)):
@@ -213,8 +240,97 @@ async def report_detail(report_id: int, session: Session = Depends(get_session))
     if not report:
         return "Report not found"
     # 直接返回 HTML 内容
-    from fastapi.responses import HTMLResponse
     return HTMLResponse(content=report.content_html)
+
+@router.get("/logs")
+async def logs_page(request: Request, tab: str = Query("all")):
+    active_tab = "error" if tab == "error" else "all"
+    return templates.TemplateResponse("logs.html", {
+        "request": request,
+        "tab": active_tab,
+    })
+
+@router.get("/api/logs/stream")
+async def logs_stream(
+    request: Request,
+    tab: str = Query("all"),
+    lines: int = Query(100, ge=20, le=500),
+):
+    active_tab = "error" if tab == "error" else "all"
+
+    async def event_generator():
+        current_log = _resolve_log_file()
+        yield _to_sse(f"[system] 已连接日志流，当前筛选: {active_tab}")
+        if current_log is None:
+            yield _to_sse("[system] 日志文件不存在，等待服务写入...")
+            while not await request.is_disconnected():
+                await asyncio.sleep(1.5)
+                current_log = _resolve_log_file()
+                if current_log is not None:
+                    yield _to_sse(f"[system] 已检测到日志文件: {current_log.name}")
+                    break
+            if current_log is None:
+                return
+
+        emitted = 0
+        for line in _read_last_lines(current_log, lines):
+            if active_tab == "error" and not _is_error_line(line):
+                continue
+            yield _to_sse(line)
+            emitted += 1
+
+        if emitted == 0 and active_tab == "error":
+            yield _to_sse("[system] 暂无错误日志，等待新事件...")
+
+        log_fp = current_log.open("r", encoding="utf-8", errors="replace")
+        log_fp.seek(0, os.SEEK_END)
+        last_position = log_fp.tell()
+        try:
+            while not await request.is_disconnected():
+                latest_log = _resolve_log_file()
+                if latest_log is None:
+                    await asyncio.sleep(1.0)
+                    continue
+
+                if latest_log != current_log:
+                    log_fp.close()
+                    current_log = latest_log
+                    log_fp = current_log.open("r", encoding="utf-8", errors="replace")
+                    log_fp.seek(0, os.SEEK_END)
+                    last_position = log_fp.tell()
+                    yield _to_sse(f"[system] 日志文件已切换: {current_log.name}")
+
+                line = log_fp.readline()
+                if line:
+                    last_position = log_fp.tell()
+                    if active_tab == "error" and not _is_error_line(line):
+                        continue
+                    yield _to_sse(line)
+                    continue
+
+                try:
+                    file_size = current_log.stat().st_size
+                except OSError:
+                    file_size = last_position
+
+                if file_size < last_position:
+                    log_fp.close()
+                    log_fp = current_log.open("r", encoding="utf-8", errors="replace")
+                    last_position = 0
+
+                await asyncio.sleep(0.8)
+        finally:
+            log_fp.close()
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
 
 @router.get("/health/check")
 async def health_check():

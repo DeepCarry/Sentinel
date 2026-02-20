@@ -54,10 +54,12 @@
             </nav>
 
             <div class="sidebar-footer">
-                <div class="status-pill">
-                    <span class="status-dot"></span>
-                    <span>服务运行中</span>
-                </div>
+                <a href="/logs" class="status-pill-link {% if request.url.path.startswith('/logs') %}active{% endif %}">
+                    <div class="status-pill">
+                        <span class="status-dot"></span>
+                        <span>服务运行中</span>
+                    </div>
+                </a>
                 <div class="sidebar-hint">Dark Tech UI · 2025</div>
             </div>
         </aside>

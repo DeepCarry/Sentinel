@@ -16,6 +16,9 @@ fi
 # 激活虚拟环境并启动
 source .venv/bin/activate
 
+# 固定 Playwright 浏览器缓存路径，避免 Cursor 沙箱临时路径导致可执行文件丢失
+export PLAYWRIGHT_BROWSERS_PATH="$HOME/Library/Caches/ms-playwright"
+
 # 检查端口是否被占用（最常见的“启动多次/断点不命中”根因）
 if lsof -nP -iTCP:8000 -sTCP:LISTEN >/dev/null 2>&1; then
     echo "错误: 端口 8000 已被占用，拒绝启动（避免启动多次/请求打到别的进程）。"
@@ -37,15 +40,15 @@ fi
 # 确保日志目录存在
 mkdir -p logs
 
-# 使用 nohup 在后台启动，输出重定向到日志文件
+# 使用 nohup 在后台启动，输出重定向到统一日志文件
 echo "正在启动 Sentinel..."
-nohup .venv/bin/python main_prod.py > logs/startup.log 2>&1 &
+LOG_FILE="logs/sentinel.log"
+nohup .venv/bin/python main_prod.py > "$LOG_FILE" 2>&1 &
 
 # 获取进程ID
 PID=$!
 echo "Sentinel 已启动，进程ID: $PID"
-echo "日志文件: logs/sentinel.log"
-echo "启动日志: logs/startup.log"
+echo "日志文件: $LOG_FILE"
 echo ""
 echo "使用以下命令查看状态:"
 echo "  ./scripts/status.sh    - 查看运行状态"
@@ -60,7 +63,7 @@ if ps -p $PID > /dev/null; then
     echo "🌍 Web 管理后台: http://localhost:8000"
     echo ""
 else
-    echo "✗ 启动失败，请查看 logs/startup.log 了解详情"
+    echo "✗ 启动失败，请查看 $LOG_FILE 了解详情"
     exit 1
 fi
 
