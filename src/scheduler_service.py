@@ -218,8 +218,8 @@ def init_scheduler():
     else:
         logger.info(f"当前推送模式: {NOTIFICATION_MODE}，定时汇总任务未启用")
     
-    # 任务C: 日报推送 (每天 09:00)
-    scheduler.add_job(run_daily_report, CronTrigger(hour=9, minute=0), id='daily_report')
+    # 任务C: 日报推送 (每天 09:40)
+    scheduler.add_job(run_daily_report, CronTrigger(hour=9, minute=40), id='daily_report')
 
     # 任务D: 周报推送 (每周一 09:30)
     scheduler.add_job(run_weekly_report, CronTrigger(day_of_week='mon', hour=9, minute=30), id='weekly_report')
