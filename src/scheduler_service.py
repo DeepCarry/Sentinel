@@ -8,7 +8,7 @@ from sqlmodel import Session, select
 
 from src.database import engine
 from src.models import NewsFlash, DailyStats, ScanRecord
-from src.scrapers.aicoin import AICoinScraper
+# from src.scrapers.aicoin import AICoinScraper  # 已暂停
 from src.scrapers.blockbeats import BlockBeatsScraper
 from src.filter import get_risk_tags
 from src.config import NOTIFICATION_MODE, CRAWL_INTERVAL_MINUTES, NOTIFICATION_INTERVAL_MINUTES
@@ -21,7 +21,7 @@ logger = setup_logger("sentinel.scheduler")
 
 async def _run_crawl():
     """并发运行所有爬虫"""
-    scrapers = [AICoinScraper(), BlockBeatsScraper()] 
+    scrapers = [BlockBeatsScraper()]  # AICoin 已暂停 
     tasks = [scraper.run() for scraper in scrapers]
     results = await asyncio.gather(*tasks, return_exceptions=True)
     
